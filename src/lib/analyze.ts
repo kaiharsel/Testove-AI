@@ -4,8 +4,6 @@ import { z } from "zod";
 import { CATEGORIES } from "./categories";
 import type { Lang } from "./i18n";
 
-export { CATEGORIES };
-
 const AnalysisSchema = z.object({
   priority: z.enum(["low", "medium", "high"]),
   category: z.enum(CATEGORIES),
@@ -13,7 +11,7 @@ const AnalysisSchema = z.object({
   draft_reply: z.string().min(1),
 });
 
-export type Analysis = z.infer<typeof AnalysisSchema>;
+type Analysis = z.infer<typeof AnalysisSchema>;
 
 const SYSTEM = `Ти — асистент служби підтримки інтернет-магазину. Аналізуй звернення клієнта.
 Правила пріоритету:

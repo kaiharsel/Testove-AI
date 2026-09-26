@@ -3,7 +3,7 @@ import { neon } from "@neondatabase/serverless";
 // Tickets younger than this get the "Нове" badge and show under the new-ticket form.
 const NEW_TICKET_INTERVAL = "1 hour";
 
-export type Priority = "low" | "medium" | "high";
+type Priority = "low" | "medium" | "high";
 
 export type Ticket = {
   id: number;

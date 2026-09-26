@@ -8,7 +8,7 @@ import { getLang } from "@/lib/i18n-server";
 import type { ErrorKey } from "@/lib/i18n";
 
 // Errors are dictionary keys; the client shows them in the current language.
-export type ActionState = { error?: ErrorKey; ok?: boolean };
+export type ActionState = { error?: ErrorKey };
 
 export async function addTicketAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const name = String(formData.get("customer_name") ?? "").trim();
@@ -37,7 +37,7 @@ export async function analyzeTicketAction(id: number): Promise<ActionState> {
     return { error: "analyzeFailed" };
   }
   revalidatePath("/", "layout");
-  return { ok: true };
+  return {};
 }
 
 export async function deleteTicketAction(id: number): Promise<ActionState> {
@@ -48,5 +48,5 @@ export async function deleteTicketAction(id: number): Promise<ActionState> {
     return { error: "deleteFailed" };
   }
   revalidatePath("/", "layout");
-  return { ok: true };
+  return {};
 }
