@@ -14,15 +14,22 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string>();
   const [progress, setProgress] = useState(0);
+  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
   const analyzed = ticket.analyzed_at !== null;
 
-  // The LLM gives no real progress, so estimate it: approach 95% over ~15s, jump to 100% when done.
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3500);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  // The LLM gives no real progress, so estimate it: approach 95% over ~6s, jump to 100% when done.
   useEffect(() => {
     if (!pending) return;
     const started = Date.now();
     const timer = setInterval(() => {
       const seconds = (Date.now() - started) / 1000;
-      setProgress(Math.min(95, Math.round(95 * (1 - Math.exp(-seconds / 6)))));
+      setProgress(Math.min(95, Math.round(95 * (1 - Math.exp(-seconds / 2)))));
     }, 200);
     return () => {
       clearInterval(timer);
@@ -36,10 +43,26 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
       setProgress(0);
       const res = await analyzeTicketAction(ticket.id);
       if (res.error) setError(res.error);
+      setToast(
+        res.error
+          ? { ok: false, text: `Не вдалося проаналізувати звернення: ${ticket.customer_name}` }
+          : { ok: true, text: `Аналіз завершено: ${ticket.customer_name}` },
+      );
     });
 
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      {toast && (
+        <div
+          role="status"
+          className={`toast-in fixed left-1/2 top-4 z-50 rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg ${
+            toast.ok ? "bg-green-600" : "bg-red-600"
+          }`}
+        >
+          {toast.ok ? "✓ " : "✕ "}
+          {toast.text}
+        </div>
+      )}
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-semibold">{ticket.customer_name}</h3>
         <time className="text-xs text-slate-500">{new Date(ticket.created_at).toLocaleString("uk-UA")}</time>
