@@ -6,21 +6,21 @@
 
 - Форма «імʼя клієнта + текст звернення», дані зберігаються в Postgres (Neon).
 - Список усіх звернень (зберігається після перезавантаження).
-- Кнопка **«Аналізувати (AI)»** викликає Claude і повертає структурований результат:
+- Кнопка **«Аналізувати (AI)»** викликає LLM (Google Gemini, або Claude, якщо задано `ANTHROPIC_API_KEY`) і повертає структурований результат:
   пріоритет (низький / середній / високий), категорія, підсумок в одне речення, чернетка відповіді.
 - Результат аналізу зберігається в базі та показується на картці.
 
 ## Стек
 
-Next.js (App Router, Server Actions) · TypeScript · Tailwind CSS · Neon Postgres · Anthropic Claude API.
+Next.js (App Router, Server Actions) · TypeScript · Tailwind CSS · Neon Postgres · Google Gemini API (free tier) / Anthropic Claude API.
 
-Структурований вивід отримується через примусовий виклик інструменту (`tool_choice`) з JSON-схемою
+Структурований вивід отримується через JSON-схему (Gemini `responseJsonSchema` / Claude `tool_choice`)
 та додатково валідується через Zod перед збереженням.
 
 ## Локальний запуск
 
 ```bash
-cp .env.example .env.local   # заповнити DATABASE_URL та ANTHROPIC_API_KEY
+cp .env.example .env.local   # заповнити DATABASE_URL та GEMINI_API_KEY
 npm install
 npm run dev
 ```
@@ -29,4 +29,10 @@ npm run dev
 
 ## Деплой
 
-Vercel: імпортувати репозиторій, додати змінні середовища `DATABASE_URL` і `ANTHROPIC_API_KEY`.
+Vercel: імпортувати репозиторій, додати змінні середовища `DATABASE_URL` і `GEMINI_API_KEY`.
+
+## Проблема, яку довелося вирішити
+
+Модель `gemini-2.5-flash` повертала 404 («недоступна новим користувачам»), а на безкоштовному плані
+моделі періодично відповідають 503 (перевантаження). Рішення: аліас `gemini-flash-latest` і
+автоматичний перехід на запасні моделі при помилках 404/429/5xx.
