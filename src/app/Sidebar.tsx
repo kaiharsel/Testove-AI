@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
@@ -14,8 +15,27 @@ const PlusIcon = () => (
     <path d="M10 4v12M4 10h12" strokeLinecap="round" />
   </svg>
 );
+const MenuIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true">
+    <path d="M3 6h14M3 10h14M3 14h14" strokeLinecap="round" />
+  </svg>
+);
+const CloseIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5" aria-hidden="true">
+    <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
+  </svg>
+);
 
-export default function Sidebar({ count }: { count: number }) {
+function Brand() {
+  return (
+    <div>
+      <div className="text-base font-bold tracking-tight">AI-обробка звернень</div>
+      <div className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Служба підтримки</div>
+    </div>
+  );
+}
+
+function Nav({ count, onNavigate }: { count: number; onNavigate?: () => void }) {
   const pathname = usePathname();
   const items = [
     { href: "/", label: "Звернення", icon: <ListIcon />, badge: count },
@@ -23,26 +43,18 @@ export default function Sidebar({ count }: { count: number }) {
   ];
 
   return (
-    <aside className="border-b border-neutral-200 bg-white md:sticky md:top-0 md:flex md:h-screen md:w-64 md:shrink-0 md:flex-col md:border-r md:border-b-0 dark:border-neutral-800 dark:bg-neutral-950">
-      <div className="flex items-center justify-between gap-4 px-5 py-4 md:block md:px-6 md:py-8">
-        <div>
-          <div className="text-base font-bold tracking-tight">AI-обробка звернень</div>
-          <div className="mt-1 hidden text-sm text-neutral-500 md:block dark:text-neutral-400">Служба підтримки</div>
-        </div>
-        <div className="md:hidden">
-          <ThemeToggle />
-        </div>
-      </div>
-
-      <nav className="flex gap-1 px-3 pb-3 md:flex-col md:px-4 md:pb-0">
-        {items.map((item) => {
-          const active = pathname === item.href;
-          return (
+    <nav className="flex flex-col">
+      {items.map((item, i) => {
+        const active = pathname === item.href;
+        return (
+          <div key={item.href}>
+            {/* Faint divider with breathing room between sections */}
+            {i > 0 && <div className="mx-3 my-3 h-px bg-neutral-900/10 dark:bg-white/10" aria-hidden="true" />}
             <Link
-              key={item.href}
               href={item.href}
+              onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`flex flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors md:flex-none ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
                   ? "bg-neutral-900 text-white dark:bg-white dark:text-black"
                   : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-900 dark:hover:text-white"
@@ -50,17 +62,78 @@ export default function Sidebar({ count }: { count: number }) {
             >
               {item.icon}
               <span className="flex-1">{item.label}</span>
-              {item.badge !== undefined && (
-                <span className={`badge ${active ? "badge-inverted" : ""}`}>{item.badge}</span>
-              )}
+              {item.badge !== undefined && <span className={`badge ${active ? "badge-inverted" : ""}`}>{item.badge}</span>}
             </Link>
-          );
-        })}
-      </nav>
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
 
-      <div className="mt-auto hidden px-4 py-6 md:block">
-        <ThemeToggle />
-      </div>
-    </aside>
+export default function Sidebar({ count }: { count: number }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-neutral-200 bg-white px-4 py-8 md:flex dark:border-neutral-800 dark:bg-neutral-950">
+        <div className="px-2 pb-8">
+          <Brand />
+        </div>
+        <Nav count={count} />
+        <div className="mt-auto">
+          <ThemeToggle />
+        </div>
+      </aside>
+
+      {/* Mobile top bar with burger */}
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-neutral-200 bg-white/90 px-5 py-3 backdrop-blur md:hidden dark:border-neutral-800 dark:bg-neutral-950/90">
+        <div className="text-base font-bold tracking-tight">AI-обробка звернень</div>
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Відкрити меню"
+          aria-expanded={open}
+          className="btn btn-secondary h-10 w-10 p-0"
+        >
+          <MenuIcon />
+        </button>
+      </header>
+
+      {/* Mobile drawer */}
+      {open && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="fade-in absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Меню"
+            className="drawer-in absolute inset-y-0 right-0 flex w-72 max-w-[85vw] flex-col bg-white px-4 py-6 shadow-xl dark:bg-neutral-950"
+          >
+            <div className="flex items-start justify-between gap-4 px-2 pb-8">
+              <Brand />
+              <button onClick={() => setOpen(false)} aria-label="Закрити меню" className="btn btn-secondary h-10 w-10 p-0">
+                <CloseIcon />
+              </button>
+            </div>
+            <Nav count={count} onNavigate={() => setOpen(false)} />
+            <div className="mt-auto">
+              <ThemeToggle />
+            </div>
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

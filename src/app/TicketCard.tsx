@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import type { Ticket } from "@/lib/db";
 import { analyzeTicketAction, deleteTicketAction } from "./actions";
 import Toast from "./Toast";
@@ -15,7 +15,8 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string>();
   const [progress, setProgress] = useState(0);
-  const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+  const [toast, setToast] = useState<{ id: number; ok: boolean; text: string } | null>(null);
+  const hideToast = useCallback(() => setToast(null), []);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, startDelete] = useTransition();
   const analyzed = ticket.analyzed_at !== null;
@@ -35,12 +36,6 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
         setConfirmDelete(false);
       }
     });
-
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 3500);
-    return () => clearTimeout(timer);
-  }, [toast]);
 
   // The LLM gives no real progress, so estimate it: approach 95% over ~6s, jump to 100% when done.
   useEffect(() => {
@@ -64,14 +59,14 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
       if (res.error) setError(res.error);
       setToast(
         res.error
-          ? { ok: false, text: `Не вдалося проаналізувати звернення: ${ticket.customer_name}` }
-          : { ok: true, text: `Аналіз завершено: ${ticket.customer_name}` },
+          ? { id: Date.now(), ok: false, text: `Не вдалося проаналізувати звернення: ${ticket.customer_name}` }
+          : { id: Date.now(), ok: true, text: `Аналіз завершено: ${ticket.customer_name}` },
       );
     });
 
   return (
     <article id={`ticket-${ticket.id}`} className="card overflow-hidden scroll-mt-8">
-      {toast && <Toast ok={toast.ok} text={toast.text} />}
+      {toast && <Toast key={toast.id} ok={toast.ok} text={toast.text} onDone={hideToast} />}
 
       <div className="space-y-4 p-6">
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Toast from "./Toast";
 
@@ -12,6 +12,7 @@ export default function AddedToast() {
   const pathname = usePathname();
   const [addedId, setAddedId] = useState<string | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
+  const hideToast = useCallback(() => setToastVisible(false), []);
   const added = params.get("added");
 
   // Take the id from the URL once and clean it. Timers live in the effect below, keyed by the
@@ -32,13 +33,12 @@ export default function AddedToast() {
     }, 150);
     const unmark = setTimeout(() => card?.classList.remove("ticket-highlight"), 4200);
     const show = setTimeout(() => setToastVisible(true), 0);
-    const hide = setTimeout(() => setToastVisible(false), 3500);
     return () => {
-      [scroll, unmark, show, hide].forEach(clearTimeout);
+      [scroll, unmark, show].forEach(clearTimeout);
       card?.classList.remove("ticket-highlight");
     };
   }, [addedId]);
 
   if (!toastVisible) return null;
-  return <Toast ok text="Звернення збережено" />;
+  return <Toast ok text="Звернення збережено" onDone={hideToast} />;
 }
