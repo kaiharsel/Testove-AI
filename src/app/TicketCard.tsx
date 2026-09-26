@@ -70,7 +70,7 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
     });
 
   return (
-    <article className="card overflow-hidden">
+    <article id={`ticket-${ticket.id}`} className="card overflow-hidden scroll-mt-8">
       {toast && <Toast ok={toast.ok} text={toast.text} />}
 
       <div className="space-y-4 p-6">

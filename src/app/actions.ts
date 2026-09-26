@@ -12,14 +12,15 @@ export async function addTicketAction(_prev: ActionState, formData: FormData): P
   const message = String(formData.get("message") ?? "").trim();
   if (!name || !message) return { error: "Заповніть імʼя та текст звернення" };
   if (name.length > 200 || message.length > 5000) return { error: "Занадто довгий текст" };
+  let id: number;
   try {
-    await createTicket(name, message);
+    id = (await createTicket(name, message)).id;
   } catch (e) {
     console.error(e);
     return { error: "Не вдалося зберегти звернення" };
   }
   revalidatePath("/", "layout");
-  redirect("/new?added=1");
+  redirect(`/new?added=${id}`);
 }
 
 export async function analyzeTicketAction(id: number): Promise<ActionState> {

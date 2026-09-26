@@ -133,3 +133,26 @@ body {
   -webkit-box-shadow: 0 0 0 1000px #000 inset;
   caret-color: var(--color-neutral-100);
 }
+
+/* Dashed outline around a just-created ticket, drawn with a gap from the card.
+   currentColor follows the theme (dark text in light mode, light text in dark mode). */
+.ticket-highlight {
+  outline: 2px dashed currentColor;
+  outline-offset: 8px;
+  animation: ticket-highlight 4s ease-out forwards;
+}
+@keyframes ticket-highlight {
+  0% {
+    outline-offset: 16px;
+    outline-color: transparent;
+  }
+  12%,
+  75% {
+    outline-offset: 8px;
+    outline-color: currentColor;
+  }
+  100% {
+    outline-offset: 8px;
+    outline-color: transparent;
+  }
+}

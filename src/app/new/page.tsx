@@ -5,6 +5,12 @@ import AddedToast from "../AddedToast";
 
 export const dynamic = "force-dynamic";
 
+const STEPS = [
+  { title: "Збережіть звернення", text: "Воно зʼявиться нижче та у списку звернень" },
+  { title: "Запустіть AI-аналіз", text: "Кнопка «Аналізувати (AI)» на картці звернення" },
+  { title: "Отримайте результат", text: "Пріоритет, категорія, підсумок і чернетка відповіді" },
+];
+
 export default async function NewTicketPage() {
   const recent = await listNewTickets();
 
@@ -17,6 +23,20 @@ export default async function NewTicketPage() {
       </header>
 
       <TicketForm />
+
+      <ol className="grid gap-6 sm:grid-cols-3">
+        {STEPS.map((step, i) => (
+          <li key={step.title} className="flex gap-4 sm:flex-col sm:gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-300 text-sm font-semibold dark:border-neutral-700">
+              {i + 1}
+            </span>
+            <div className="space-y-1">
+              <div className="text-sm font-medium">{step.title}</div>
+              <div className="text-sm text-neutral-500 dark:text-neutral-400">{step.text}</div>
+            </div>
+          </li>
+        ))}
+      </ol>
 
       <section className="space-y-6">
         <div className="space-y-2">
