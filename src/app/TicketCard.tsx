@@ -49,14 +49,14 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
       }
     });
 
-  // The LLM gives no real progress, so estimate it: approach 95% over ~6s, jump to 100% when done.
+  // The LLM gives no real progress, so estimate it: reach ~90% within ~1.5s, hold near 95%, jump to 100% when done.
   useEffect(() => {
     if (!pending) return;
     const started = Date.now();
     const timer = setInterval(() => {
       const seconds = (Date.now() - started) / 1000;
-      setProgress(Math.min(95, Math.round(95 * (1 - Math.exp(-seconds / 2)))));
-    }, 200);
+      setProgress(Math.min(95, Math.round(95 * (1 - Math.exp(-seconds / 0.6)))));
+    }, 100);
     return () => {
       clearInterval(timer);
       setProgress(100);
