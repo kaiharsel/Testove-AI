@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import Toast from "./Toast";
 
 // Shows a confirmation after the form redirects here with ?added=1, then cleans the URL.
 export default function AddedToast() {
@@ -23,12 +24,5 @@ export default function AddedToast() {
   }, [added, pathname, router]);
 
   if (!visible) return null;
-  return (
-    <div
-      role="status"
-      className="toast-in fixed top-4 left-1/2 z-50 rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white shadow-lg"
-    >
-      ✓ Звернення збережено
-    </div>
-  );
+  return <Toast ok text="Звернення збережено" />;
 }

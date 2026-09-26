@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import type { Ticket } from "@/lib/db";
 import { analyzeTicketAction, deleteTicketAction } from "./actions";
+import Toast from "./Toast";
 
 const PRIORITY = {
   low: { label: "Низький", cls: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" },
@@ -70,17 +71,7 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
 
   return (
     <article className="card overflow-hidden">
-      {toast && (
-        <div
-          role="status"
-          className={`toast-in fixed left-1/2 top-4 z-50 rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg ${
-            toast.ok ? "bg-green-600" : "bg-red-600"
-          }`}
-        >
-          {toast.ok ? "✓ " : "✕ "}
-          {toast.text}
-        </div>
-      )}
+      {toast && <Toast ok={toast.ok} text={toast.text} />}
 
       <div className="space-y-4 p-6">
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
