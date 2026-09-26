@@ -65,9 +65,9 @@ body {
     @apply h-1.5 w-1.5 rounded-full bg-current;
     animation: new-dot 2s ease-in-out infinite;
   }
-  /* Ticket language marker (UA / EN) */
+  /* Ticket language marker (globe icon + language name) */
   .lang-badge {
-    @apply inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold tracking-wide text-neutral-500 ring-1 ring-neutral-300 ring-inset;
+    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium text-neutral-600 ring-1 ring-neutral-300 ring-inset;
     @apply dark:text-neutral-400 dark:ring-neutral-700;
   }
   .badge-inverted {

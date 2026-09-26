@@ -14,6 +14,13 @@ const PRIORITY_CLS = {
   high: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
 } as const;
 
+const GlobeIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5" aria-hidden="true">
+    <circle cx="10" cy="10" r="7.5" />
+    <path d="M2.5 10h15M10 2.5c2 2.2 3 4.7 3 7.5s-1 5.3-3 7.5c-2-2.2-3-4.7-3-7.5s1-5.3 3-7.5z" />
+  </svg>
+);
+
 const TranslateIcon = () => (
   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4" aria-hidden="true">
     <path d="M3 5h8M7 3v2M5 5c0 3 2 5.5 5 6.5M9 5c0 3-2.5 6-6 7.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -107,8 +114,9 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
           <div className="flex items-center gap-3">
             <h3 className="text-lg font-semibold">{ticket.customer_name}</h3>
             {ticket.language && (
-              <span className="lang-badge" title={t.ticketLang[ticket.language]}>
-                {ticket.language === "uk" ? "UA" : "EN"}
+              <span className="lang-badge">
+                <GlobeIcon />
+                {t.ticketLang[ticket.language]}
               </span>
             )}
             {ticket.is_new && <span className="new-badge">{t.newBadge}</span>}
