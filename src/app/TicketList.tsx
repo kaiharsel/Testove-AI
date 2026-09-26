@@ -29,6 +29,10 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
     );
   }
 
+  // New tickets stay on top, separated from older ones; sorting applies within each group.
+  const fresh = visible.filter((t) => t.is_new);
+  const older = visible.filter((t) => !t.is_new);
+
   const options = [
     { value: null, label: "Усі категорії", count: tickets.length },
     ...filters.map((c) => ({ value: c, label: capitalize(c), count: count(c) })),
@@ -61,8 +65,26 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
         </label>
       </div>
 
+      {fresh.length > 0 && (
+        <div className="space-y-5">
+          {fresh.map((t) => (
+            <TicketCard key={t.id} ticket={t} />
+          ))}
+        </div>
+      )}
+
+      {fresh.length > 0 && older.length > 0 && (
+        <div className="flex items-center gap-4 py-2" role="separator">
+          <div className="h-px flex-1 bg-neutral-900/10 dark:bg-white/10" />
+          <span className="text-xs font-semibold tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
+            Раніше
+          </span>
+          <div className="h-px flex-1 bg-neutral-900/10 dark:bg-white/10" />
+        </div>
+      )}
+
       <div className="space-y-5">
-        {visible.map((t) => (
+        {older.map((t) => (
           <TicketCard key={t.id} ticket={t} />
         ))}
       </div>
