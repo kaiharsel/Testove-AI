@@ -3,12 +3,14 @@ import { z } from "zod";
 
 import { CATEGORIES } from "./categories";
 import type { Lang } from "./i18n";
+import { translationTarget } from "./language";
 
 const AnalysisSchema = z.object({
   priority: z.enum(["low", "medium", "high"]),
   category: z.enum(CATEGORIES),
   summary: z.string().min(1),
   draft_reply: z.string().min(1),
+  translation: z.string().min(1),
 });
 
 type Analysis = z.infer<typeof AnalysisSchema>;
@@ -20,7 +22,8 @@ const SYSTEM = `Ти — асистент служби підтримки інт
 - low: загальні питання, побажання, подяки.
 Категорія — завжди одне зі значень переліку як є (українською), незалежно від мови відповіді.
 Підсумок — рівно одне речення мовою, вказаною в запиті.
-Чернетка відповіді — ввічлива, конкретна, мовою, вказаною в запиті, звертайся до клієнта на імʼя, без вигаданих фактів (номерів замовлень, дат, сум).`;
+Чернетка відповіді — ввічлива, конкретна, мовою самого клієнта (мовою його звернення), звертайся до клієнта на імʼя, без вигаданих фактів (номерів замовлень, дат, сум).
+Переклад — точний переклад тексту звернення мовою, вказаною в запиті, зі збереженням змісту й тону.`;
 
 const OUTPUT_LANGUAGE: Record<Lang, string> = { uk: "українською", en: "англійською (English)" };
 
@@ -31,13 +34,24 @@ const JSON_SCHEMA = {
     priority: { type: "string", enum: ["low", "medium", "high"] },
     category: { type: "string", enum: [...CATEGORIES] },
     summary: { type: "string", description: "Одне речення" },
-    draft_reply: { type: "string", description: "Чернетка відповіді клієнту" },
+    draft_reply: { type: "string", description: "Чернетка відповіді клієнту його мовою" },
+    translation: { type: "string", description: "Переклад тексту звернення" },
   },
-  required: ["priority", "category", "summary", "draft_reply"],
+  required: ["priority", "category", "summary", "draft_reply", "translation"],
 };
 
-export async function analyzeTicket(customerName: string, message: string, lang: Lang = "uk"): Promise<Analysis> {
-  const prompt = `Імʼя клієнта: ${customerName}\n\nЗвернення:\n${message}\n\nМова підсумку та чернетки відповіді: ${OUTPUT_LANGUAGE[lang]}.`;
+export async function analyzeTicket(
+  customerName: string,
+  message: string,
+  ticketLang: Lang,
+  uiLang: Lang = "uk",
+): Promise<Analysis> {
+  const prompt = [
+    `Імʼя клієнта: ${customerName}`,
+    `Звернення:\n${message}`,
+    `Мова підсумку: ${OUTPUT_LANGUAGE[uiLang]}.`,
+    `Мова перекладу звернення: ${OUTPUT_LANGUAGE[translationTarget(ticketLang)]}.`,
+  ].join("\n\n");
   if (process.env.GEMINI_API_KEY) return AnalysisSchema.parse(await analyzeWithGemini(prompt));
   if (process.env.ANTHROPIC_API_KEY) return AnalysisSchema.parse(await analyzeWithClaude(prompt));
   throw new Error("Set GEMINI_API_KEY or ANTHROPIC_API_KEY");

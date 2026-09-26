@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import type { Ticket } from "@/lib/db";
 import { analyzeTicketAction, deleteTicketAction } from "./actions";
 import type { ErrorKey } from "@/lib/i18n";
+import { translationTarget } from "@/lib/language";
 import { useI18n } from "./I18nProvider";
 import { useToast } from "./ToastProvider";
 
@@ -12,6 +13,13 @@ const PRIORITY_CLS = {
   medium: "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300",
   high: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
 } as const;
+
+const TranslateIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4" aria-hidden="true">
+    <path d="M3 5h8M7 3v2M5 5c0 3 2 5.5 5 6.5M9 5c0 3-2.5 6-6 7.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M10.5 17l3.25-7.5L17 17M11.6 14.5h4.3" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 
 const CopyIcon = () => (
   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4" aria-hidden="true">
@@ -28,6 +36,7 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
   const [progress, setProgress] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, startDelete] = useTransition();
+  const [showTranslation, setShowTranslation] = useState(false);
   const analyzed = ticket.analyzed_at !== null;
 
   useEffect(() => {
@@ -97,13 +106,41 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <div className="flex items-center gap-3">
             <h3 className="text-lg font-semibold">{ticket.customer_name}</h3>
+            {ticket.language && (
+              <span className="lang-badge" title={t.ticketLang[ticket.language]}>
+                {ticket.language === "uk" ? "UA" : "EN"}
+              </span>
+            )}
             {ticket.is_new && <span className="new-badge">{t.newBadge}</span>}
           </div>
           <time className="pt-1 text-xs text-neutral-500 dark:text-neutral-400">
             {new Date(ticket.created_at).toLocaleString(t.locale, { dateStyle: "medium", timeStyle: "short" })}
           </time>
         </header>
-        <p className="leading-relaxed whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">{ticket.message}</p>
+        <p lang={ticket.language ?? undefined} className="leading-relaxed whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">
+          {ticket.message}
+        </p>
+
+        {ticket.translation && ticket.language && (
+          <div className="space-y-3">
+            <button
+              onClick={() => setShowTranslation((v) => !v)}
+              aria-expanded={showTranslation}
+              className="inline-flex cursor-pointer items-center gap-1.5 text-sm font-medium text-neutral-500 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
+            >
+              <TranslateIcon />
+              {showTranslation ? t.hideTranslation : t.showTranslation(translationTarget(ticket.language))}
+            </button>
+            {showTranslation && (
+              <p
+                lang={translationTarget(ticket.language)}
+                className="dropdown-in border-l-2 border-neutral-300 pl-4 leading-relaxed whitespace-pre-wrap text-neutral-600 italic dark:border-neutral-700 dark:text-neutral-400"
+              >
+                {ticket.translation}
+              </p>
+            )}
+          </div>
+        )}
 
         {analyzed && ticket.priority && (
           <div className="space-y-5 rounded-xl bg-neutral-50 p-5 dark:bg-black/40">

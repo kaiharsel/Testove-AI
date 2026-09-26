@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createTicket, deleteTicket, getTicket, saveAnalysis } from "@/lib/db";
 import { analyzeTicket } from "@/lib/analyze";
 import { getLang } from "@/lib/i18n-server";
+import { detectLanguage } from "@/lib/language";
 import type { ErrorKey } from "@/lib/i18n";
 
 // Errors are dictionary keys; the client shows them in the current language.
@@ -30,7 +31,12 @@ export async function analyzeTicketAction(id: number): Promise<ActionState> {
   try {
     const ticket = await getTicket(id);
     if (!ticket) return { error: "notFound" };
-    const analysis = await analyzeTicket(ticket.customer_name, ticket.message, await getLang());
+    const analysis = await analyzeTicket(
+      ticket.customer_name,
+      ticket.message,
+      ticket.language ?? detectLanguage(ticket.message),
+      await getLang(),
+    );
     await saveAnalysis(id, analysis);
   } catch (e) {
     console.error(e);
