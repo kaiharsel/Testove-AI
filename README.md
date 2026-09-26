@@ -23,8 +23,9 @@ Next.js (App Router, Server Actions) · TypeScript · Tailwind CSS · Neon Postg
 
 ## Локальний запуск
 
+Створити `.env.local` зі змінними `DATABASE_URL` (Postgres) та `GEMINI_API_KEY` (або `ANTHROPIC_API_KEY`).
+
 ```bash
-cp .env.example .env.local   # заповнити DATABASE_URL та GEMINI_API_KEY
 npm install
 npm run dev
 ```
