@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import type { Ticket } from "@/lib/db";
 import { analyzeTicketAction } from "./actions";
 
@@ -13,11 +13,27 @@ const PRIORITY = {
 export default function TicketCard({ ticket }: { ticket: Ticket }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string>();
+  const [progress, setProgress] = useState(0);
   const analyzed = ticket.analyzed_at !== null;
+
+  // The LLM gives no real progress, so estimate it: approach 95% over ~15s, jump to 100% when done.
+  useEffect(() => {
+    if (!pending) return;
+    const started = Date.now();
+    const timer = setInterval(() => {
+      const seconds = (Date.now() - started) / 1000;
+      setProgress(Math.min(95, Math.round(95 * (1 - Math.exp(-seconds / 6)))));
+    }, 200);
+    return () => {
+      clearInterval(timer);
+      setProgress(100);
+    };
+  }, [pending]);
 
   const analyze = () =>
     startTransition(async () => {
       setError(undefined);
+      setProgress(0);
       const res = await analyzeTicketAction(ticket.id);
       if (res.error) setError(res.error);
     });
@@ -46,6 +62,18 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
           <div>
             <b>Чернетка відповіді:</b>
             <p className="mt-1 whitespace-pre-wrap rounded border border-slate-200 bg-white p-3">{ticket.draft_reply}</p>
+          </div>
+        </div>
+      )}
+
+      {pending && (
+        <div className="mt-4">
+          <div className="mb-1 flex justify-between text-xs text-slate-600">
+            <span>AI аналізує звернення…</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+            <div className="h-full rounded-full bg-slate-900 transition-all duration-200" style={{ width: `${progress}%` }} />
           </div>
         </div>
       )}
