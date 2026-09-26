@@ -78,3 +78,9 @@ export async function saveAnalysis(
 export async function deleteTicket(id: number): Promise<void> {
   await getSql()`DELETE FROM tickets WHERE id = ${id}`;
 }
+
+export async function countTickets(): Promise<number> {
+  await ensureSchema();
+  const rows = (await getSql()`SELECT count(*)::int AS n FROM tickets`) as { n: number }[];
+  return rows[0].n;
+}

@@ -69,7 +69,7 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
     });
 
   return (
-    <article className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+    <article className="card overflow-hidden">
       {toast && (
         <div
           role="status"
@@ -81,61 +81,70 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
           {toast.text}
         </div>
       )}
-      <header className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-semibold">{ticket.customer_name}</h3>
-        <time className="text-xs text-neutral-500 dark:text-neutral-400">{new Date(ticket.created_at).toLocaleString("uk-UA")}</time>
-      </header>
-      <p className="mt-2 whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">{ticket.message}</p>
 
-      {analyzed && ticket.priority && (
-        <div className="mt-4 space-y-2 rounded-lg bg-neutral-50 p-4 text-sm dark:bg-black/40">
-          <div className="flex flex-wrap gap-2">
-            <span className={`rounded-full px-2 py-0.5 font-medium ${PRIORITY[ticket.priority].cls}`}>
-              Пріоритет: {PRIORITY[ticket.priority].label}
-            </span>
-            <span className="rounded-full bg-neutral-200 px-2 py-0.5 font-medium text-neutral-800 dark:bg-neutral-700 dark:text-neutral-200">
-              Категорія: {ticket.category}
-            </span>
-          </div>
-          <p>
-            <b>Підсумок:</b> {ticket.summary}
-          </p>
-          <div>
-            <b>Чернетка відповіді:</b>
-            <p className="mt-1 whitespace-pre-wrap rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-900">{ticket.draft_reply}</p>
-          </div>
-        </div>
-      )}
+      <div className="space-y-4 p-6">
+        <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+          <h3 className="text-lg font-semibold">{ticket.customer_name}</h3>
+          <time className="pt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            {new Date(ticket.created_at).toLocaleString("uk-UA", { dateStyle: "medium", timeStyle: "short" })}
+          </time>
+        </header>
+        <p className="leading-relaxed whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">{ticket.message}</p>
 
-      {pending && (
-        <div className="mt-4">
-          <div className="mb-1 flex justify-between text-xs text-neutral-600 dark:text-neutral-400">
-            <span>AI аналізує звернення…</span>
-            <span>{progress}%</span>
+        {analyzed && ticket.priority && (
+          <div className="space-y-5 rounded-xl bg-neutral-50 p-5 dark:bg-black/40">
+            <div className="flex flex-wrap gap-6">
+              <div className="space-y-1.5">
+                <div className="field-label">Пріоритет</div>
+                <span className={`inline-block rounded-full px-2.5 py-0.5 text-sm font-medium ${PRIORITY[ticket.priority].cls}`}>
+                  {PRIORITY[ticket.priority].label}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="field-label">Категорія</div>
+                <span className="inline-block rounded-full bg-neutral-200 px-2.5 py-0.5 text-sm font-medium text-neutral-800 first-letter:uppercase dark:bg-neutral-800 dark:text-neutral-200">
+                  {ticket.category}
+                </span>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <div className="field-label">Підсумок</div>
+              <p className="text-sm leading-relaxed">{ticket.summary}</p>
+            </div>
+            <div className="space-y-1.5">
+              <div className="field-label">Чернетка відповіді</div>
+              <p className="rounded-lg border border-neutral-200 bg-white p-4 text-sm leading-relaxed whitespace-pre-wrap dark:border-neutral-800 dark:bg-neutral-900">
+                {ticket.draft_reply}
+              </p>
+            </div>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-            <div className="h-full rounded-full bg-neutral-900 dark:bg-white transition-all duration-200" style={{ width: `${progress}%` }} />
-          </div>
-        </div>
-      )}
+        )}
 
-      <div className="mt-4 flex items-center gap-3">
-        <button
-          onClick={analyze}
-          disabled={pending}
-          className="btn btn-secondary py-1.5"
-        >
+        {pending && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-neutral-600 dark:text-neutral-400">
+              <span>AI аналізує звернення…</span>
+              <span className="font-medium tabular-nums">{progress}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+              <div
+                className="h-full rounded-full bg-neutral-900 transition-all duration-200 dark:bg-white"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <footer className="flex flex-wrap items-center gap-3 border-t border-neutral-200 bg-neutral-50/60 px-6 py-4 dark:border-neutral-800 dark:bg-black/20">
+        <button onClick={analyze} disabled={pending} className="btn btn-secondary">
           {pending ? "Аналізую…" : analyzed ? "Переаналізувати (AI)" : "Аналізувати (AI)"}
         </button>
         {error && <span className="text-sm text-red-600 dark:text-red-400">{error}</span>}
-        <button
-          onClick={() => setConfirmDelete(true)}
-          disabled={pending || deleting}
-          className="btn btn-danger ml-auto py-1.5"
-        >
+        <button onClick={() => setConfirmDelete(true)} disabled={pending || deleting} className="btn btn-danger ml-auto">
           Видалити
         </button>
-      </div>
+      </footer>
 
       {confirmDelete && (
         <div

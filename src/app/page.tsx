@@ -1,24 +1,27 @@
 import { listTickets } from "@/lib/db";
-import TicketForm from "./TicketForm";
 import TicketList from "./TicketList";
-import ThemeToggle from "./ThemeToggle";
+import AddedToast from "./AddedToast";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const tickets = await listTickets();
+  const analyzed = tickets.filter((t) => t.analyzed_at).length;
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 px-4 py-10">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">AI-обробка звернень</h1>
-          <p className="text-neutral-600 dark:text-neutral-400">Додайте звернення клієнта та отримайте AI-аналіз.</p>
-        </div>
-        <ThemeToggle />
+    <div className="space-y-8">
+      <AddedToast />
+      <header className="space-y-2">
+        <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight">
+          Звернення
+          <span className="badge badge-lg">{tickets.length}</span>
+        </h1>
+        <p className="text-neutral-500 dark:text-neutral-400">
+          Проаналізовано {analyzed} з {tickets.length}. Натисніть «Аналізувати (AI)», щоб отримати пріоритет, категорію та
+          чернетку відповіді.
+        </p>
       </header>
-      <TicketForm />
       <TicketList tickets={tickets} />
-    </main>
+    </div>
   );
 }

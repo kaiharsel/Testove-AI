@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createTicket, deleteTicket, getTicket, saveAnalysis } from "@/lib/db";
 import { analyzeTicket } from "@/lib/analyze";
 
@@ -17,8 +18,8 @@ export async function addTicketAction(_prev: ActionState, formData: FormData): P
     console.error(e);
     return { error: "Не вдалося зберегти звернення" };
   }
-  revalidatePath("/");
-  return { ok: true };
+  revalidatePath("/", "layout");
+  redirect("/?added=1");
 }
 
 export async function analyzeTicketAction(id: number): Promise<ActionState> {
@@ -31,7 +32,7 @@ export async function analyzeTicketAction(id: number): Promise<ActionState> {
     console.error(e);
     return { error: "Помилка AI-аналізу. Спробуйте ще раз." };
   }
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -42,6 +43,6 @@ export async function deleteTicketAction(id: number): Promise<ActionState> {
     console.error(e);
     return { error: "Не вдалося видалити звернення" };
   }
-  revalidatePath("/");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
