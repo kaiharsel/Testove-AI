@@ -99,3 +99,28 @@ body {
   animation: dropdown-in 0.15s ease-out;
   transform-origin: top left;
 }
+
+/* Native controls (scrollbars, textarea resize handle) follow the active theme. */
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}
+
+/* Chrome autofill paints its own blue/white background; keep the field colors. */
+.field:-webkit-autofill,
+.field:-webkit-autofill:hover,
+.field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-neutral-900);
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
+  caret-color: var(--color-neutral-900);
+  transition: background-color 9999s;
+}
+.dark .field:-webkit-autofill,
+.dark .field:-webkit-autofill:hover,
+.dark .field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-neutral-100);
+  -webkit-box-shadow: 0 0 0 1000px #000 inset;
+  caret-color: var(--color-neutral-100);
+}

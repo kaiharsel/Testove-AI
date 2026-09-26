@@ -12,7 +12,7 @@ export default function TicketForm() {
         <label htmlFor="customer_name" className="field-label">
           Імʼя клієнта
         </label>
-        <input id="customer_name" name="customer_name" placeholder="Напр. Олена Коваль" required maxLength={200} className="field" />
+        <input id="customer_name" name="customer_name" placeholder="Напр. Олена Коваль" autoComplete="off" required maxLength={200} className="field" />
       </div>
       <div className="space-y-2">
         <label htmlFor="message" className="field-label">
