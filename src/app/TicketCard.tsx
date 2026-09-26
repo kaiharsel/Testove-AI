@@ -1,22 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import type { Ticket } from "@/lib/db";
 import { analyzeTicketAction, deleteTicketAction } from "./actions";
-import Toast from "./Toast";
+import type { ErrorKey } from "@/lib/i18n";
+import { useI18n } from "./I18nProvider";
+import { useToast } from "./ToastProvider";
 
-const PRIORITY = {
-  low: { label: "Низький", cls: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" },
-  medium: { label: "Середній", cls: "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300" },
-  high: { label: "Високий", cls: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300" },
+const PRIORITY_CLS = {
+  low: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
+  medium: "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300",
+  high: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
 } as const;
+
+const CopyIcon = () => (
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4" aria-hidden="true">
+    <rect x="7" y="7" width="10" height="10" rx="2" />
+    <path d="M13 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2" />
+  </svg>
+);
 
 export default function TicketCard({ ticket }: { ticket: Ticket }) {
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<ErrorKey>();
+  const { t } = useI18n();
+  const showToast = useToast();
   const [progress, setProgress] = useState(0);
-  const [toast, setToast] = useState<{ id: number; ok: boolean; text: string } | null>(null);
-  const hideToast = useCallback(() => setToast(null), []);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, startDelete] = useTransition();
   const analyzed = ticket.analyzed_at !== null;
@@ -34,6 +43,9 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
       if (res.error) {
         setError(res.error);
         setConfirmDelete(false);
+        showToast(false, t.errors[res.error]);
+      } else {
+        showToast(true, t.deleted(ticket.customer_name));
       }
     });
 
@@ -57,25 +69,38 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
       setProgress(0);
       const res = await analyzeTicketAction(ticket.id);
       if (res.error) setError(res.error);
-      setToast(
-        res.error
-          ? { id: Date.now(), ok: false, text: `Не вдалося проаналізувати звернення: ${ticket.customer_name}` }
-          : { id: Date.now(), ok: true, text: `Аналіз завершено: ${ticket.customer_name}` },
-      );
+      showToast(!res.error, res.error ? t.analyzeFailed(ticket.customer_name) : t.analyzeDone(ticket.customer_name));
     });
+
+  const copyDraft = async () => {
+    const text = ticket.draft_reply ?? "";
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(true, t.copied);
+    } catch {
+      // Clipboard API can be unavailable (non-secure origin, no focus): fall back to execCommand.
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      const ok = document.execCommand("copy");
+      area.remove();
+      showToast(ok, ok ? t.copied : t.copyFailed);
+    }
+  };
 
   return (
     <article id={`ticket-${ticket.id}`} className="card overflow-hidden scroll-mt-8">
-      {toast && <Toast key={toast.id} ok={toast.ok} text={toast.text} onDone={hideToast} />}
-
       <div className="space-y-4 p-6">
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
           <div className="flex items-center gap-3">
             <h3 className="text-lg font-semibold">{ticket.customer_name}</h3>
-            {ticket.is_new && <span className="new-badge">Нове</span>}
+            {ticket.is_new && <span className="new-badge">{t.newBadge}</span>}
           </div>
           <time className="pt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            {new Date(ticket.created_at).toLocaleString("uk-UA", { dateStyle: "medium", timeStyle: "short" })}
+            {new Date(ticket.created_at).toLocaleString(t.locale, { dateStyle: "medium", timeStyle: "short" })}
           </time>
         </header>
         <p className="leading-relaxed whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">{ticket.message}</p>
@@ -84,24 +109,30 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
           <div className="space-y-5 rounded-xl bg-neutral-50 p-5 dark:bg-black/40">
             <div className="flex flex-wrap gap-6">
               <div className="space-y-1.5">
-                <div className="field-label">Пріоритет</div>
-                <span className={`inline-block rounded-full px-2.5 py-0.5 text-sm font-medium ${PRIORITY[ticket.priority].cls}`}>
-                  {PRIORITY[ticket.priority].label}
+                <div className="field-label">{t.priority}</div>
+                <span className={`inline-block rounded-full px-2.5 py-0.5 text-sm font-medium ${PRIORITY_CLS[ticket.priority]}`}>
+                  {t.priorities[ticket.priority]}
                 </span>
               </div>
               <div className="space-y-1.5">
-                <div className="field-label">Категорія</div>
-                <span className="inline-block rounded-full bg-neutral-200 px-2.5 py-0.5 text-sm font-medium text-neutral-800 first-letter:uppercase dark:bg-neutral-800 dark:text-neutral-200">
-                  {ticket.category}
+                <div className="field-label">{t.category}</div>
+                <span className="inline-block rounded-full bg-neutral-200 px-2.5 py-0.5 text-sm font-medium text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
+                  {t.categories[ticket.category ?? ""] ?? ticket.category}
                 </span>
               </div>
             </div>
             <div className="space-y-1.5">
-              <div className="field-label">Підсумок</div>
+              <div className="field-label">{t.summary}</div>
               <p className="text-sm leading-relaxed">{ticket.summary?.replace(/\.\s*$/, "")}</p>
             </div>
             <div className="space-y-1.5">
-              <div className="field-label">Чернетка відповіді</div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="field-label">{t.draftReply}</div>
+                <button onClick={copyDraft} className="btn btn-secondary px-2.5 py-1 text-xs">
+                  <CopyIcon />
+                  {t.copy}
+                </button>
+              </div>
               <p className="rounded-lg border border-neutral-200 bg-white p-4 text-sm leading-relaxed whitespace-pre-wrap dark:border-neutral-800 dark:bg-neutral-900">
                 {ticket.draft_reply}
               </p>
@@ -112,7 +143,7 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
         {pending && (
           <div className="space-y-2">
             <div className="flex justify-between text-xs text-neutral-600 dark:text-neutral-400">
-              <span>AI аналізує звернення…</span>
+              <span>{t.analyzing}</span>
               <span className="font-medium tabular-nums">{progress}%</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
@@ -127,11 +158,11 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
 
       <footer className="flex flex-wrap items-center gap-3 border-t border-neutral-200 bg-neutral-50/60 px-6 py-4 dark:border-neutral-800 dark:bg-black/20">
         <button onClick={analyze} disabled={pending} className="btn btn-secondary">
-          {pending ? "Аналізую…" : analyzed ? "Переаналізувати (AI)" : "Аналізувати (AI)"}
+          {pending ? t.analyzingShort : analyzed ? t.reanalyze : t.analyze}
         </button>
-        {error && <span className="text-sm text-red-600 dark:text-red-400">{error}</span>}
+        {error && <span className="text-sm text-red-600 dark:text-red-400">{t.errors[error]}</span>}
         <button onClick={() => setConfirmDelete(true)} disabled={pending || deleting} className="btn btn-danger ml-auto">
-          Видалити
+          {t.delete}
         </button>
       </footer>
 
@@ -148,17 +179,19 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
             className="w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-5 shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
           >
             <h3 id={`delete-title-${ticket.id}`} className="text-lg font-semibold">
-              Видалити звернення?
+              {t.deleteTitle}
             </h3>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Звернення від <b>{ticket.customer_name}</b> і його AI-аналіз буде видалено назавжди
+              {t.deleteText(ticket.customer_name).before}
+              <b>{ticket.customer_name}</b>
+              {t.deleteText(ticket.customer_name).after}
             </p>
             <div className="mt-5 flex justify-end gap-2">
               <button autoFocus onClick={() => setConfirmDelete(false)} disabled={deleting} className="btn btn-secondary">
-                Скасувати
+                {t.cancel}
               </button>
               <button onClick={remove} disabled={deleting} className="btn btn-danger-solid">
-                {deleting ? "Видалення…" : "Видалити"}
+                {deleting ? t.deleting : t.delete}
               </button>
             </div>
           </div>

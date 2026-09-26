@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
+import LanguageSwitch from "./LanguageSwitch";
+import { useI18n } from "./I18nProvider";
 
 const ListIcon = () => (
   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-5 w-5" aria-hidden="true">
@@ -27,19 +29,21 @@ const CloseIcon = () => (
 );
 
 function Brand() {
+  const { t } = useI18n();
   return (
     <div>
-      <div className="text-base font-bold tracking-tight">AI-обробка звернень</div>
-      <div className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Служба підтримки</div>
+      <div className="text-base font-bold tracking-tight">{t.appName}</div>
+      <div className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{t.appTagline}</div>
     </div>
   );
 }
 
 function Nav({ count, onNavigate }: { count: number; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { t } = useI18n();
   const items = [
-    { href: "/", label: "Звернення", icon: <ListIcon />, badge: count },
-    { href: "/new", label: "Нове звернення", icon: <PlusIcon /> },
+    { href: "/", label: t.navTickets, icon: <ListIcon />, badge: count },
+    { href: "/new", label: t.navNew, icon: <PlusIcon /> },
   ];
 
   return (
@@ -73,6 +77,7 @@ function Nav({ count, onNavigate }: { count: number; onNavigate?: () => void }) 
 
 export default function Sidebar({ count }: { count: number }) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!open) return;
@@ -93,17 +98,18 @@ export default function Sidebar({ count }: { count: number }) {
           <Brand />
         </div>
         <Nav count={count} />
-        <div className="mt-auto">
+        <div className="mt-auto space-y-2">
+          <LanguageSwitch />
           <ThemeToggle />
         </div>
       </aside>
 
       {/* Mobile top bar with burger */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-neutral-200 bg-white/90 px-5 py-3 backdrop-blur md:hidden dark:border-neutral-800 dark:bg-neutral-950/90">
-        <div className="text-base font-bold tracking-tight">AI-обробка звернень</div>
+        <div className="text-base font-bold tracking-tight">{t.appName}</div>
         <button
           onClick={() => setOpen(true)}
-          aria-label="Відкрити меню"
+          aria-label={t.openMenu}
           aria-expanded={open}
           className="btn btn-secondary h-10 w-10 p-0"
         >
@@ -118,17 +124,18 @@ export default function Sidebar({ count }: { count: number }) {
           <aside
             role="dialog"
             aria-modal="true"
-            aria-label="Меню"
+            aria-label={t.menu}
             className="drawer-in absolute inset-y-0 right-0 flex w-72 max-w-[85vw] flex-col bg-white px-4 py-6 shadow-xl dark:bg-neutral-950"
           >
             <div className="flex items-start justify-between gap-4 px-2 pb-8">
               <Brand />
-              <button onClick={() => setOpen(false)} aria-label="Закрити меню" className="btn btn-secondary h-10 w-10 p-0">
+              <button onClick={() => setOpen(false)} aria-label={t.closeMenu} className="btn btn-secondary h-10 w-10 p-0">
                 <CloseIcon />
               </button>
             </div>
             <Nav count={count} onNavigate={() => setOpen(false)} />
-            <div className="mt-auto">
+            <div className="mt-auto space-y-2">
+              <LanguageSwitch />
               <ThemeToggle />
             </div>
           </aside>

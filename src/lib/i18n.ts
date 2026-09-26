@@ -1,0 +1,191 @@
+// UI dictionaries. Shared by server and client code, so no server-only imports here.
+
+export const LANGS = ["uk", "en"] as const;
+export type Lang = (typeof LANGS)[number];
+export const DEFAULT_LANG: Lang = "uk";
+export const LANG_COOKIE = "lang";
+
+export const isLang = (v: unknown): v is Lang => LANGS.includes(v as Lang);
+
+const uk = {
+  locale: "uk-UA",
+  appName: "AI-обробка звернень",
+  appTagline: "Служба підтримки",
+  metaDescription: "Внутрішній інструмент служби підтримки з AI-аналізом звернень",
+
+  navTickets: "Звернення",
+  navNew: "Нове звернення",
+  openMenu: "Відкрити меню",
+  closeMenu: "Закрити меню",
+  menu: "Меню",
+  themeToggle: "Перемкнути тему",
+  themeDark: "Темна тема",
+  themeLight: "Світла тема",
+  language: "Мова",
+
+  ticketsTitle: "Звернення",
+  ticketsSubtitle: (analyzed: number, total: number) =>
+    `Проаналізовано ${analyzed} з ${total}. Натисніть «Аналізувати (AI)», щоб отримати пріоритет, категорію та чернетку відповіді`,
+  allCategories: "Усі категорії",
+  importantFirst: "Спочатку важливі",
+  earlier: "Раніше",
+  noTickets: "Поки що звернень немає",
+  addFirst: "Додати перше звернення",
+  newBadge: "Нове",
+
+  newTitle: "Нове звернення",
+  newSubtitle: "Внесіть звернення клієнта, щоб проаналізувати його за допомогою AI",
+  steps: [
+    { title: "Збережіть звернення", text: "Воно зʼявиться нижче та у списку звернень" },
+    { title: "Запустіть AI-аналіз", text: "Кнопка «Аналізувати (AI)» на картці звернення" },
+    { title: "Отримайте результат", text: "Пріоритет, категорія, підсумок і чернетка відповіді" },
+  ],
+  nameLabel: "Імʼя клієнта",
+  nameHint: "Як звертатися до клієнта у відповіді",
+  namePlaceholder: "Напр. Олена Коваль",
+  messageLabel: "Текст звернення",
+  messageHint: "Скопіюйте повідомлення клієнта повністю: AI визначить пріоритет і категорію",
+  messagePlaceholder: "Опишіть проблему або питання клієнта",
+  save: "Зберегти звернення",
+  saving: "Збереження…",
+  saved: "Звернення збережено",
+  recentTitle: "Нові звернення",
+  recentSubtitle: "Створені за останню годину",
+  recentEmpty: "Тут зʼявляться звернення, які ви щойно створили",
+
+  priority: "Пріоритет",
+  category: "Категорія",
+  summary: "Підсумок",
+  draftReply: "Чернетка відповіді",
+  priorities: { low: "Низький", medium: "Середній", high: "Високий" },
+  categories: {
+    оплата: "Оплата",
+    доставка: "Доставка",
+    скарга: "Скарга",
+    "технічна проблема": "Технічна проблема",
+    повернення: "Повернення",
+    інше: "Інше",
+    "без аналізу": "Без аналізу",
+  } as Record<string, string>,
+  analyzing: "AI аналізує звернення…",
+  analyze: "Аналізувати (AI)",
+  reanalyze: "Переаналізувати (AI)",
+  analyzingShort: "Аналізую…",
+  analyzeDone: (name: string) => `Аналіз завершено: ${name}`,
+  analyzeFailed: (name: string) => `Не вдалося проаналізувати звернення: ${name}`,
+  delete: "Видалити",
+  deleting: "Видалення…",
+  cancel: "Скасувати",
+  deleted: (name: string) => `Звернення видалено: ${name}`,
+  copy: "Копіювати",
+  copied: "Чернетку відповіді скопійовано",
+  copyFailed: "Не вдалося скопіювати",
+  themeSetDark: "Увімкнено темну тему",
+  themeSetLight: "Увімкнено світлу тему",
+  langChanged: "Мову змінено на українську",
+  deleteTitle: "Видалити звернення?",
+  deleteText: (name: string) => ({ before: "Звернення від ", name, after: " і його AI-аналіз буде видалено назавжди" }),
+
+  errors: {
+    required: "Заповніть імʼя та текст звернення",
+    tooLong: "Занадто довгий текст",
+    saveFailed: "Не вдалося зберегти звернення",
+    notFound: "Звернення не знайдено",
+    analyzeFailed: "Помилка AI-аналізу. Спробуйте ще раз",
+    deleteFailed: "Не вдалося видалити звернення",
+  },
+};
+
+export type Dict = typeof uk;
+
+const en: Dict = {
+  locale: "en-GB",
+  appName: "AI Ticket Triage",
+  appTagline: "Customer support",
+  metaDescription: "Internal support tool with AI analysis of customer tickets",
+
+  navTickets: "Tickets",
+  navNew: "New ticket",
+  openMenu: "Open menu",
+  closeMenu: "Close menu",
+  menu: "Menu",
+  themeToggle: "Toggle theme",
+  themeDark: "Dark theme",
+  themeLight: "Light theme",
+  language: "Language",
+
+  ticketsTitle: "Tickets",
+  ticketsSubtitle: (analyzed, total) =>
+    `Analyzed ${analyzed} of ${total}. Click “Analyze (AI)” to get the priority, category and a draft reply`,
+  allCategories: "All categories",
+  importantFirst: "Important first",
+  earlier: "Earlier",
+  noTickets: "No tickets yet",
+  addFirst: "Add the first ticket",
+  newBadge: "New",
+
+  newTitle: "New ticket",
+  newSubtitle: "Enter a customer ticket to analyze it with AI",
+  steps: [
+    { title: "Save the ticket", text: "It will appear below and in the ticket list" },
+    { title: "Run AI analysis", text: "The “Analyze (AI)” button on the ticket card" },
+    { title: "Get the result", text: "Priority, category, summary and a draft reply" },
+  ],
+  nameLabel: "Customer name",
+  nameHint: "How to address the customer in the reply",
+  namePlaceholder: "E.g. Olena Koval",
+  messageLabel: "Ticket text",
+  messageHint: "Paste the full customer message: AI will determine the priority and category",
+  messagePlaceholder: "Describe the customer’s problem or question",
+  save: "Save ticket",
+  saving: "Saving…",
+  saved: "Ticket saved",
+  recentTitle: "New tickets",
+  recentSubtitle: "Created in the last hour",
+  recentEmpty: "Tickets you just created will appear here",
+
+  priority: "Priority",
+  category: "Category",
+  summary: "Summary",
+  draftReply: "Draft reply",
+  priorities: { low: "Low", medium: "Medium", high: "High" },
+  categories: {
+    оплата: "Payment",
+    доставка: "Delivery",
+    скарга: "Complaint",
+    "технічна проблема": "Technical issue",
+    повернення: "Return",
+    інше: "Other",
+    "без аналізу": "Not analyzed",
+  },
+  analyzing: "AI is analyzing the ticket…",
+  analyze: "Analyze (AI)",
+  reanalyze: "Re-analyze (AI)",
+  analyzingShort: "Analyzing…",
+  analyzeDone: (name) => `Analysis complete: ${name}`,
+  analyzeFailed: (name) => `Could not analyze the ticket: ${name}`,
+  delete: "Delete",
+  deleting: "Deleting…",
+  cancel: "Cancel",
+  deleted: (name) => `Ticket deleted: ${name}`,
+  copy: "Copy",
+  copied: "Draft reply copied",
+  copyFailed: "Could not copy",
+  themeSetDark: "Dark theme on",
+  themeSetLight: "Light theme on",
+  langChanged: "Language changed to English",
+  deleteTitle: "Delete ticket?",
+  deleteText: (name) => ({ before: "The ticket from ", name, after: " and its AI analysis will be deleted permanently" }),
+
+  errors: {
+    required: "Enter the customer name and ticket text",
+    tooLong: "The text is too long",
+    saveFailed: "Could not save the ticket",
+    notFound: "Ticket not found",
+    analyzeFailed: "AI analysis failed. Please try again",
+    deleteFailed: "Could not delete the ticket",
+  },
+};
+
+export const DICTS: Record<Lang, Dict> = { uk, en };
+export type ErrorKey = keyof Dict["errors"];

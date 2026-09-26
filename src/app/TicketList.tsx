@@ -6,15 +6,15 @@ import type { Ticket } from "@/lib/db";
 import { CATEGORIES } from "@/lib/categories";
 import TicketCard from "./TicketCard";
 import CategorySelect from "./CategorySelect";
+import { useI18n } from "./I18nProvider";
 
 const NOT_ANALYZED = "без аналізу";
 const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 } as const;
 
-const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
-
 export default function TicketList({ tickets }: { tickets: Ticket[] }) {
   const [selected, setCategory] = useState<string | null>(null);
   const [byPriority, setByPriority] = useState(false);
+  const { t } = useI18n();
 
   const matches = (t: Ticket, c: string) => (c === NOT_ANALYZED ? !t.category : t.category === c);
   const count = (c: string) => tickets.filter((t) => matches(t, c)).length;
@@ -34,16 +34,16 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
   const older = visible.filter((t) => !t.is_new);
 
   const options = [
-    { value: null, label: "Усі категорії", count: tickets.length },
-    ...filters.map((c) => ({ value: c, label: capitalize(c), count: count(c) })),
+    { value: null, label: t.allCategories, count: tickets.length },
+    ...filters.map((c) => ({ value: c, label: t.categories[c] ?? c, count: count(c) })),
   ];
 
   if (tickets.length === 0) {
     return (
       <div className="card flex flex-col items-center gap-4 px-6 py-16 text-center">
-        <p className="text-neutral-500 dark:text-neutral-400">Поки що звернень немає</p>
+        <p className="text-neutral-500 dark:text-neutral-400">{t.noTickets}</p>
         <Link href="/new" className="btn btn-primary">
-          Додати перше звернення
+          {t.addFirst}
         </Link>
       </div>
     );
@@ -61,7 +61,7 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
             onChange={(e) => setByPriority(e.target.checked)}
           />
           <span className="switch-track" aria-hidden="true" />
-          Спочатку важливі
+          {t.importantFirst}
         </label>
       </div>
 
@@ -77,7 +77,7 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
         <div className="flex items-center gap-4 py-2" role="separator">
           <div className="h-px flex-1 bg-neutral-900/10 dark:bg-white/10" />
           <span className="text-xs font-semibold tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
-            Раніше
+            {t.earlier}
           </span>
           <div className="h-px flex-1 bg-neutral-900/10 dark:bg-white/10" />
         </div>

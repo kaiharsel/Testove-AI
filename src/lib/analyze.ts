@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
 import { CATEGORIES } from "./categories";
+import type { Lang } from "./i18n";
 
 export { CATEGORIES };
 
@@ -19,8 +20,11 @@ const SYSTEM = `Ти — асистент служби підтримки інт
 - high: гроші списано без результату, загроза безпеці/здоровʼю, повна неможливість користуватись сервісом, сильне невдоволення з погрозою піти/скаргою.
 - medium: затримка доставки, проблема, що має обхідний шлях, запит на повернення.
 - low: загальні питання, побажання, подяки.
-Підсумок — рівно одне речення українською.
-Чернетка відповіді — ввічлива, конкретна, українською, звертайся до клієнта на імʼя, без вигаданих фактів (номерів замовлень, дат, сум).`;
+Категорія — завжди одне зі значень переліку як є (українською), незалежно від мови відповіді.
+Підсумок — рівно одне речення мовою, вказаною в запиті.
+Чернетка відповіді — ввічлива, конкретна, мовою, вказаною в запиті, звертайся до клієнта на імʼя, без вигаданих фактів (номерів замовлень, дат, сум).`;
+
+const OUTPUT_LANGUAGE: Record<Lang, string> = { uk: "українською", en: "англійською (English)" };
 
 // JSON schema shared by both providers so the model must return separate fields, not free text.
 const JSON_SCHEMA = {
@@ -34,8 +38,8 @@ const JSON_SCHEMA = {
   required: ["priority", "category", "summary", "draft_reply"],
 };
 
-export async function analyzeTicket(customerName: string, message: string): Promise<Analysis> {
-  const prompt = `Імʼя клієнта: ${customerName}\n\nЗвернення:\n${message}`;
+export async function analyzeTicket(customerName: string, message: string, lang: Lang = "uk"): Promise<Analysis> {
+  const prompt = `Імʼя клієнта: ${customerName}\n\nЗвернення:\n${message}\n\nМова підсумку та чернетки відповіді: ${OUTPUT_LANGUAGE[lang]}.`;
   if (process.env.GEMINI_API_KEY) return AnalysisSchema.parse(await analyzeWithGemini(prompt));
   if (process.env.ANTHROPIC_API_KEY) return AnalysisSchema.parse(await analyzeWithClaude(prompt));
   throw new Error("Set GEMINI_API_KEY or ANTHROPIC_API_KEY");

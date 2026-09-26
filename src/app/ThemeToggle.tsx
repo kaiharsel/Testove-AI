@@ -1,5 +1,8 @@
 "use client";
 
+import { useI18n } from "./I18nProvider";
+import { useToast } from "./ToastProvider";
+
 const MoonIcon = () => (
   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4" aria-hidden="true">
     <path d="M16.5 12.2A7 7 0 017.8 3.5a7 7 0 108.7 8.7z" strokeLinejoin="round" />
@@ -16,8 +19,11 @@ const SunIcon = () => (
 );
 
 export default function ThemeToggle() {
+  const { t } = useI18n();
+  const showToast = useToast();
   const toggle = () => {
     const dark = document.documentElement.classList.toggle("dark");
+    showToast(true, dark ? t.themeSetDark : t.themeSetLight);
     try {
       localStorage.setItem("theme", dark ? "dark" : "light");
     } catch {}
@@ -25,14 +31,14 @@ export default function ThemeToggle() {
 
   // The label switches via the `dark` class, so it is correct on first paint without client state.
   return (
-    <button onClick={toggle} aria-label="Перемкнути тему" className="btn btn-secondary w-full py-2">
+    <button onClick={toggle} aria-label={t.themeToggle} className="btn btn-secondary w-full py-2">
       <span className="flex items-center gap-2 dark:hidden">
         <MoonIcon />
-        Темна тема
+        {t.themeDark}
       </span>
       <span className="hidden items-center gap-2 dark:flex">
         <SunIcon />
-        Світла тема
+        {t.themeLight}
       </span>
     </button>
   );

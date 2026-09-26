@@ -2,6 +2,8 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { addTicketAction, type ActionState } from "./actions";
+import { useI18n } from "./I18nProvider";
+import { useToast } from "./ToastProvider";
 
 const MAX_MESSAGE = 5000;
 
@@ -9,11 +11,17 @@ export default function TicketForm() {
   const [state, action, pending] = useActionState<ActionState, FormData>(addTicketAction, {});
   const [length, setLength] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
+  const { t } = useI18n();
+  const showToast = useToast();
 
   // After a successful save the page stays here; clear the form for the next ticket.
   useEffect(() => {
     if (!pending && !state.error) formRef.current?.reset();
   }, [pending, state]);
+
+  useEffect(() => {
+    if (state.error) showToast(false, t.errors[state.error]);
+  }, [state, showToast, t]);
 
   return (
     <form ref={formRef} action={action} onReset={() => setLength(0)} className="card">
@@ -21,14 +29,14 @@ export default function TicketForm() {
         <div className="space-y-3">
           <div>
             <label htmlFor="customer_name" className="block font-medium">
-              Імʼя клієнта
+              {t.nameLabel}
             </label>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Як звертатися до клієнта у відповіді</p>
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{t.nameHint}</p>
           </div>
           <input
             id="customer_name"
             name="customer_name"
-            placeholder="Напр. Олена Коваль"
+            placeholder={t.namePlaceholder}
             autoComplete="off"
             required
             maxLength={200}
@@ -39,16 +47,16 @@ export default function TicketForm() {
         <div className="space-y-3">
           <div>
             <label htmlFor="message" className="block font-medium">
-              Текст звернення
+              {t.messageLabel}
             </label>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Скопіюйте повідомлення клієнта повністю: AI визначить пріоритет і категорію
+              {t.messageHint}
             </p>
           </div>
           <textarea
             id="message"
             name="message"
-            placeholder="Опишіть проблему або питання клієнта"
+            placeholder={t.messagePlaceholder}
             required
             rows={8}
             maxLength={MAX_MESSAGE}
@@ -62,9 +70,9 @@ export default function TicketForm() {
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-3 border-t border-neutral-200 px-6 py-5 md:px-10 dark:border-neutral-800">
-        {state.error && <span className="mr-auto text-sm text-red-600 dark:text-red-400">{state.error}</span>}
+        {state.error && <span className="mr-auto text-sm text-red-600 dark:text-red-400">{t.errors[state.error]}</span>}
         <button disabled={pending} className="btn btn-primary px-6">
-          {pending ? "Збереження…" : "Зберегти звернення"}
+          {pending ? t.saving : t.save}
         </button>
       </div>
     </form>
