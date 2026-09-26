@@ -21,3 +21,30 @@ body {
   transform: translate(-50%, 0);
   animation: toast-in 0.35s ease-out both;
 }
+
+/* Shared button styles: black/white, no blue tint. */
+@layer components {
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 select-none;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 dark:focus-visible:outline-white;
+    @apply active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-neutral-900 text-white shadow-sm hover:bg-neutral-700 hover:shadow;
+    @apply dark:bg-white dark:text-black dark:hover:bg-neutral-200;
+  }
+  .btn-secondary {
+    @apply border border-neutral-300 bg-white text-neutral-900 shadow-sm hover:border-neutral-400 hover:bg-neutral-50;
+    @apply dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:border-neutral-500 dark:hover:bg-neutral-800;
+  }
+  .chip {
+    @apply cursor-pointer rounded-full border px-3 py-1 text-sm font-medium transition-all duration-150 active:scale-95;
+  }
+  .chip-idle {
+    @apply border-neutral-300 bg-white text-neutral-700 hover:border-neutral-500 hover:text-neutral-900;
+    @apply dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-500 dark:hover:text-white;
+  }
+  .chip-active {
+    @apply border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-black;
+  }
+}

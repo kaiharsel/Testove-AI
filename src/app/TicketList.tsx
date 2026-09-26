@@ -25,19 +25,14 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
     );
   }
 
-  const chip = (active: boolean) =>
-    `rounded-full border px-3 py-1 text-sm transition-colors ${
-      active
-        ? "border-slate-900 bg-slate-900 text-white dark:border-sky-400 dark:bg-sky-400 dark:text-slate-950"
-        : "border-slate-300 bg-white hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
-    }`;
+  const chip = (active: boolean) => `chip ${active ? "chip-active" : "chip-idle"}`;
 
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">Звернення ({visible.length})</h2>
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-          <input type="checkbox" checked={byPriority} onChange={(e) => setByPriority(e.target.checked)} />
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+          <input type="checkbox" className="h-4 w-4 accent-neutral-900 dark:accent-white" checked={byPriority} onChange={(e) => setByPriority(e.target.checked)} />
           Спочатку високий пріоритет
         </label>
       </div>
@@ -55,7 +50,7 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
         </div>
       )}
 
-      {tickets.length === 0 && <p className="text-slate-500 dark:text-slate-400">Поки що звернень немає.</p>}
+      {tickets.length === 0 && <p className="text-neutral-500 dark:text-neutral-400">Поки що звернень немає.</p>}
       {visible.map((t) => (
         <TicketCard key={t.id} ticket={t} />
       ))}

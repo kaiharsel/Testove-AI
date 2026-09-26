@@ -13,7 +13,7 @@ export default async function Home() {
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">AI-обробка звернень</h1>
-          <p className="text-slate-600 dark:text-slate-400">Додайте звернення клієнта та отримайте AI-аналіз.</p>
+          <p className="text-neutral-600 dark:text-neutral-400">Додайте звернення клієнта та отримайте AI-аналіз.</p>
         </div>
         <ThemeToggle />
       </header>
