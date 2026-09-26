@@ -22,8 +22,6 @@ export default async function NewTicketPage() {
         <p className="text-neutral-500 dark:text-neutral-400">Внесіть звернення клієнта, щоб проаналізувати його за допомогою AI</p>
       </header>
 
-      <TicketForm />
-
       <ol className="grid gap-6 sm:grid-cols-3">
         {STEPS.map((step, i) => (
           <li key={step.title} className="flex gap-4 sm:flex-col sm:gap-3">
@@ -37,6 +35,8 @@ export default async function NewTicketPage() {
           </li>
         ))}
       </ol>
+
+      <TicketForm />
 
       <section className="space-y-6">
         <div className="space-y-2">

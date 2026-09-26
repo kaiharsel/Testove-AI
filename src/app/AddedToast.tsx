@@ -10,23 +10,35 @@ export default function AddedToast() {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [visible, setVisible] = useState(false);
+  const [addedId, setAddedId] = useState<string | null>(null);
+  const [toastVisible, setToastVisible] = useState(false);
   const added = params.get("added");
 
+  // Take the id from the URL once and clean it. Timers live in the effect below, keyed by the
+  // id, so removing ?added from the URL does not cancel them (that left the toast stuck before).
   useEffect(() => {
     if (!added) return;
-    const show = setTimeout(() => setVisible(true), 0);
-    const card = document.getElementById(`ticket-${added}`);
+    const take = setTimeout(() => setAddedId(added), 0);
+    router.replace(pathname, { scroll: false });
+    return () => clearTimeout(take);
+  }, [added, pathname, router]);
+
+  useEffect(() => {
+    if (!addedId) return;
+    const card = document.getElementById(`ticket-${addedId}`);
     const scroll = setTimeout(() => {
       card?.scrollIntoView({ behavior: "smooth", block: "start" });
       card?.classList.add("ticket-highlight");
     }, 150);
-    const unmark = setTimeout(() => card?.classList.remove("ticket-highlight"), 4000);
-    router.replace(pathname, { scroll: false });
-    const hide = setTimeout(() => setVisible(false), 3500);
-    return () => [show, scroll, unmark, hide].forEach(clearTimeout);
-  }, [added, pathname, router]);
+    const unmark = setTimeout(() => card?.classList.remove("ticket-highlight"), 4200);
+    const show = setTimeout(() => setToastVisible(true), 0);
+    const hide = setTimeout(() => setToastVisible(false), 3500);
+    return () => {
+      [scroll, unmark, show, hide].forEach(clearTimeout);
+      card?.classList.remove("ticket-highlight");
+    };
+  }, [addedId]);
 
-  if (!visible) return null;
+  if (!toastVisible) return null;
   return <Toast ok text="Звернення збережено" />;
 }

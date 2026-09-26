@@ -13,7 +13,7 @@ export default function Toast({ ok, text }: { ok: boolean; text: string }) {
   return (
     <div
       role="status"
-      className="toast-in fixed top-5 left-1/2 z-50 flex items-center gap-3 rounded-xl border border-neutral-200 bg-white py-3 pr-5 pl-3 text-sm font-medium shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
+      className="toast-in fixed bottom-6 left-1/2 z-50 flex items-center gap-3 rounded-xl border border-neutral-200 bg-white py-3 pr-5 pl-3 text-sm font-medium shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
     >
       <span
         className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
