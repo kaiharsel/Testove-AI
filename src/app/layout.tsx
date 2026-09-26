@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { countTickets } from "@/lib/db";
 import { getDict, getLang } from "@/lib/i18n-server";
+import { THEME_COOKIE, isTheme } from "@/lib/theme";
 import { I18nProvider } from "./I18nProvider";
 import { ToastProvider } from "./ToastProvider";
 import Sidebar from "./Sidebar";
@@ -13,17 +15,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const dynamic = "force-dynamic";
 
-// Applies the saved (or system) theme before first paint to avoid a light flash.
-const themeScript = `try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`;
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [count, lang] = await Promise.all([countTickets(), getLang()]);
+  const [count, lang, cookieStore] = await Promise.all([countTickets(), getLang(), cookies()]);
+  const theme = cookieStore.get(THEME_COOKIE)?.value;
 
   return (
-    <html lang={lang} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+    <html lang={lang} className={isTheme(theme) ? theme : undefined}>
       <body className="min-h-screen bg-neutral-100 text-neutral-900 antialiased md:flex dark:bg-black dark:text-neutral-100">
         <I18nProvider lang={lang}>
           <ToastProvider>

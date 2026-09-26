@@ -2,6 +2,7 @@
 
 import { useI18n } from "./I18nProvider";
 import { useToast } from "./ToastProvider";
+import { THEME_COOKIE, type Theme } from "@/lib/theme";
 
 const MoonIcon = () => (
   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4" aria-hidden="true">
@@ -18,18 +19,30 @@ const SunIcon = () => (
   </svg>
 );
 
+function isDarkNow() {
+  const root = document.documentElement;
+  if (root.classList.contains("dark")) return true;
+  if (root.classList.contains("light")) return false;
+  return matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function applyTheme(theme: Theme) {
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(theme);
+  document.cookie = `${THEME_COOKIE}=${theme}; path=/; max-age=31536000; samesite=lax`;
+}
+
 export default function ThemeToggle() {
   const { t } = useI18n();
   const showToast = useToast();
   const toggle = () => {
-    const dark = document.documentElement.classList.toggle("dark");
+    const dark = !isDarkNow();
+    applyTheme(dark ? "dark" : "light");
     showToast(true, dark ? t.themeSetDark : t.themeSetLight);
-    try {
-      localStorage.setItem("theme", dark ? "dark" : "light");
-    } catch {}
   };
 
-  // The label switches via the `dark` class, so it is correct on first paint without client state.
+  // The label switches via the dark variant, so it is correct on first paint without client state.
   return (
     <button onClick={toggle} aria-label={t.themeToggle} className="btn btn-secondary w-full py-2">
       <span className="flex items-center gap-2 dark:hidden">
