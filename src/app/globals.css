@@ -46,12 +46,13 @@ body {
   }
   /* "Нове" marker on recently created tickets */
   .new-badge {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-2.5 py-0.5 text-xs font-semibold text-white;
-    @apply dark:bg-white dark:text-black;
+    @apply inline-flex items-center gap-1.5 rounded-md bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 ring-1 ring-green-600/20 ring-inset;
+    @apply dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/25;
   }
   .new-badge::before {
     content: "";
-    @apply h-1.5 w-1.5 rounded-full bg-green-400 dark:bg-green-500;
+    @apply h-1.5 w-1.5 rounded-full bg-current;
+    animation: new-dot 2s ease-in-out infinite;
   }
   .badge-inverted {
     @apply bg-white/20 text-white dark:bg-black/15 dark:text-black;
@@ -220,4 +221,10 @@ body {
 }
 .fade-in {
   animation: fade-in 0.2s ease-out;
+}
+
+@keyframes new-dot {
+  50% {
+    opacity: 0.35;
+  }
 }
