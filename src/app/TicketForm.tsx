@@ -19,7 +19,7 @@ export default function TicketForm() {
         placeholder="Імʼя клієнта"
         required
         maxLength={200}
-        className="w-full rounded-lg border border-neutral-300 px-3 py-2 outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-400 dark:bg-black dark:placeholder-neutral-500"
+        className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-400 dark:bg-black dark:placeholder-neutral-500"
       />
       <textarea
         name="message"
@@ -27,7 +27,7 @@ export default function TicketForm() {
         required
         rows={4}
         maxLength={5000}
-        className="w-full rounded-lg border border-neutral-300 px-3 py-2 outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-400 dark:bg-black dark:placeholder-neutral-500"
+        className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 outline-none transition-colors focus:border-neutral-900 dark:border-neutral-700 dark:focus:border-neutral-400 dark:bg-black dark:placeholder-neutral-500"
       />
       <div className="flex items-center gap-3">
         <button

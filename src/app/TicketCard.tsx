@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import type { Ticket } from "@/lib/db";
-import { analyzeTicketAction } from "./actions";
+import { analyzeTicketAction, deleteTicketAction } from "./actions";
 
 const PRIORITY = {
   low: { label: "Низький", cls: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" },
@@ -15,7 +15,25 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
   const [error, setError] = useState<string>();
   const [progress, setProgress] = useState(0);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, startDelete] = useTransition();
   const analyzed = ticket.analyzed_at !== null;
+
+  useEffect(() => {
+    if (!confirmDelete) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && !deleting && setConfirmDelete(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [confirmDelete, deleting]);
+
+  const remove = () =>
+    startDelete(async () => {
+      const res = await deleteTicketAction(ticket.id);
+      if (res.error) {
+        setError(res.error);
+        setConfirmDelete(false);
+      }
+    });
 
   useEffect(() => {
     if (!toast) return;
@@ -110,7 +128,44 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
           {pending ? "Аналізую…" : analyzed ? "Переаналізувати (AI)" : "Аналізувати (AI)"}
         </button>
         {error && <span className="text-sm text-red-600 dark:text-red-400">{error}</span>}
+        <button
+          onClick={() => setConfirmDelete(true)}
+          disabled={pending || deleting}
+          className="btn btn-danger ml-auto py-1.5"
+        >
+          Видалити
+        </button>
       </div>
+
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={() => !deleting && setConfirmDelete(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`delete-title-${ticket.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-5 shadow-xl dark:border-neutral-800 dark:bg-neutral-900"
+          >
+            <h3 id={`delete-title-${ticket.id}`} className="text-lg font-semibold">
+              Видалити звернення?
+            </h3>
+            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
+              Звернення від <b>{ticket.customer_name}</b> і його AI-аналіз буде видалено назавжди.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button autoFocus onClick={() => setConfirmDelete(false)} disabled={deleting} className="btn btn-secondary">
+                Скасувати
+              </button>
+              <button onClick={remove} disabled={deleting} className="btn btn-danger-solid">
+                {deleting ? "Видалення…" : "Видалити"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </article>
   );
 }

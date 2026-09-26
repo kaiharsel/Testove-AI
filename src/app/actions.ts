@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createTicket, getTicket, saveAnalysis } from "@/lib/db";
+import { createTicket, deleteTicket, getTicket, saveAnalysis } from "@/lib/db";
 import { analyzeTicket } from "@/lib/analyze";
 
 export type ActionState = { error?: string; ok?: boolean };
@@ -30,6 +30,17 @@ export async function analyzeTicketAction(id: number): Promise<ActionState> {
   } catch (e) {
     console.error(e);
     return { error: "Помилка AI-аналізу. Спробуйте ще раз." };
+  }
+  revalidatePath("/");
+  return { ok: true };
+}
+
+export async function deleteTicketAction(id: number): Promise<ActionState> {
+  try {
+    await deleteTicket(id);
+  } catch (e) {
+    console.error(e);
+    return { error: "Не вдалося видалити звернення" };
   }
   revalidatePath("/");
   return { ok: true };

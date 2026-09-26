@@ -74,3 +74,7 @@ export async function saveAnalysis(
     RETURNING *`) as Ticket[];
   return rows[0];
 }
+
+export async function deleteTicket(id: number): Promise<void> {
+  await getSql()`DELETE FROM tickets WHERE id = ${id}`;
+}
