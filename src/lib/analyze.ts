@@ -1,7 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
-export const CATEGORIES = ["оплата", "доставка", "скарга", "технічна проблема", "повернення", "інше"] as const;
+import { CATEGORIES } from "./categories";
+
+export { CATEGORIES };
 
 const AnalysisSchema = z.object({
   priority: z.enum(["low", "medium", "high"]),

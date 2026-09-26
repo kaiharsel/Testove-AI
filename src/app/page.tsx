@@ -1,6 +1,7 @@
 import { listTickets } from "@/lib/db";
 import TicketForm from "./TicketForm";
-import TicketCard from "./TicketCard";
+import TicketList from "./TicketList";
+import ThemeToggle from "./ThemeToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -9,18 +10,15 @@ export default async function Home() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-10">
-      <header>
-        <h1 className="text-2xl font-bold">AI-обробка звернень</h1>
-        <p className="text-slate-600">Додайте звернення клієнта та отримайте AI-аналіз.</p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">AI-обробка звернень</h1>
+          <p className="text-slate-600 dark:text-slate-400">Додайте звернення клієнта та отримайте AI-аналіз.</p>
+        </div>
+        <ThemeToggle />
       </header>
       <TicketForm />
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Звернення ({tickets.length})</h2>
-        {tickets.length === 0 && <p className="text-slate-500">Поки що звернень немає.</p>}
-        {tickets.map((t) => (
-          <TicketCard key={t.id} ticket={t} />
-        ))}
-      </section>
+      <TicketList tickets={tickets} />
     </main>
   );
 }
