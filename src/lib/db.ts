@@ -1,5 +1,8 @@
 import { neon } from "@neondatabase/serverless";
 
+// Tickets younger than this get the "Нове" badge and show under the new-ticket form.
+const NEW_TICKET_INTERVAL = "1 hour";
+
 export type Priority = "low" | "medium" | "high";
 
 export type Ticket = {
@@ -12,6 +15,8 @@ export type Ticket = {
   summary: string | null;
   draft_reply: string | null;
   analyzed_at: string | null;
+  /** Created within NEW_TICKET_INTERVAL; only set by list queries. */
+  is_new?: boolean;
 };
 
 function getSql() {
@@ -43,7 +48,17 @@ async function ensureSchema() {
 
 export async function listTickets(): Promise<Ticket[]> {
   await ensureSchema();
-  return (await getSql()`SELECT * FROM tickets ORDER BY created_at DESC`) as Ticket[];
+  return (await getSql()`
+    SELECT *, created_at > now() - ${NEW_TICKET_INTERVAL}::interval AS is_new
+    FROM tickets ORDER BY created_at DESC`) as Ticket[];
+}
+
+export async function listNewTickets(): Promise<Ticket[]> {
+  await ensureSchema();
+  return (await getSql()`
+    SELECT *, true AS is_new FROM tickets
+    WHERE created_at > now() - ${NEW_TICKET_INTERVAL}::interval
+    ORDER BY created_at DESC`) as Ticket[];
 }
 
 export async function getTicket(id: number): Promise<Ticket | null> {

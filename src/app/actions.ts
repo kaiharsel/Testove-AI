@@ -19,7 +19,7 @@ export async function addTicketAction(_prev: ActionState, formData: FormData): P
     return { error: "Не вдалося зберегти звернення" };
   }
   revalidatePath("/", "layout");
-  redirect("/?added=1");
+  redirect("/new?added=1");
 }
 
 export async function analyzeTicketAction(id: number): Promise<ActionState> {
@@ -30,7 +30,7 @@ export async function analyzeTicketAction(id: number): Promise<ActionState> {
     await saveAnalysis(id, analysis);
   } catch (e) {
     console.error(e);
-    return { error: "Помилка AI-аналізу. Спробуйте ще раз." };
+    return { error: "Помилка AI-аналізу. Спробуйте ще раз" };
   }
   revalidatePath("/", "layout");
   return { ok: true };

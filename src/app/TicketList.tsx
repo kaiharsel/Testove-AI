@@ -37,7 +37,7 @@ export default function TicketList({ tickets }: { tickets: Ticket[] }) {
   if (tickets.length === 0) {
     return (
       <div className="card flex flex-col items-center gap-4 px-6 py-16 text-center">
-        <p className="text-neutral-500 dark:text-neutral-400">Поки що звернень немає.</p>
+        <p className="text-neutral-500 dark:text-neutral-400">Поки що звернень немає</p>
         <Link href="/new" className="btn btn-primary">
           Додати перше звернення
         </Link>

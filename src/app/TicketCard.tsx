@@ -75,7 +75,10 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
 
       <div className="space-y-4 p-6">
         <header className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-          <h3 className="text-lg font-semibold">{ticket.customer_name}</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-semibold">{ticket.customer_name}</h3>
+            {ticket.is_new && <span className="new-badge">Нове</span>}
+          </div>
           <time className="pt-1 text-xs text-neutral-500 dark:text-neutral-400">
             {new Date(ticket.created_at).toLocaleString("uk-UA", { dateStyle: "medium", timeStyle: "short" })}
           </time>
@@ -100,7 +103,7 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
             </div>
             <div className="space-y-1.5">
               <div className="field-label">Підсумок</div>
-              <p className="text-sm leading-relaxed">{ticket.summary}</p>
+              <p className="text-sm leading-relaxed">{ticket.summary?.replace(/\.\s*$/, "")}</p>
             </div>
             <div className="space-y-1.5">
               <div className="field-label">Чернетка відповіді</div>
@@ -153,7 +156,7 @@ export default function TicketCard({ ticket }: { ticket: Ticket }) {
               Видалити звернення?
             </h3>
             <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-              Звернення від <b>{ticket.customer_name}</b> і його AI-аналіз буде видалено назавжди.
+              Звернення від <b>{ticket.customer_name}</b> і його AI-аналіз буде видалено назавжди
             </p>
             <div className="mt-5 flex justify-end gap-2">
               <button autoFocus onClick={() => setConfirmDelete(false)} disabled={deleting} className="btn btn-secondary">

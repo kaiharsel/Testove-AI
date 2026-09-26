@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { addTicketAction, type ActionState } from "./actions";
 
@@ -9,16 +9,22 @@ const MAX_MESSAGE = 5000;
 export default function TicketForm() {
   const [state, action, pending] = useActionState<ActionState, FormData>(addTicketAction, {});
   const [length, setLength] = useState(0);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // After a successful save the page stays here; clear the form for the next ticket.
+  useEffect(() => {
+    if (!pending && !state.error) formRef.current?.reset();
+  }, [pending, state]);
 
   return (
-    <form action={action} className="card">
+    <form ref={formRef} action={action} onReset={() => setLength(0)} className="card">
       <div className="space-y-8 p-6 md:p-10">
         <div className="space-y-3">
           <div>
             <label htmlFor="customer_name" className="block font-medium">
               Імʼя клієнта
             </label>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Як звертатися до клієнта у відповіді.</p>
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Як звертатися до клієнта у відповіді</p>
           </div>
           <input
             id="customer_name"
@@ -37,7 +43,7 @@ export default function TicketForm() {
               Текст звернення
             </label>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Скопіюйте повідомлення клієнта повністю: AI визначить пріоритет і категорію.
+              Скопіюйте повідомлення клієнта повністю: AI визначить пріоритет і категорію
             </p>
           </div>
           <textarea

@@ -21,11 +21,20 @@ await sql`CREATE TABLE IF NOT EXISTS tickets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(), priority TEXT, category TEXT,
   summary TEXT, draft_reply TEXT, analyzed_at TIMESTAMPTZ)`;
 
+// Examples are dated over the past days so they read as older tickets, not "new" ones.
+const age = (i) => `${EXAMPLES.length - i} days ${i * 37} minutes`;
+
 let added = 0;
-for (const [name, message] of EXAMPLES) {
+for (const [i, [name, message]] of EXAMPLES.entries()) {
   const exists = await sql`SELECT 1 FROM tickets WHERE message = ${message}`;
-  if (exists.length) continue;
-  await sql`INSERT INTO tickets (customer_name, message) VALUES (${name}, ${message})`;
+  if (exists.length) {
+    // Also backdates examples seeded by an older version of this script.
+    await sql`UPDATE tickets SET created_at = now() - ${age(i)}::interval
+      WHERE message = ${message} AND created_at > now() - interval '1 day'`;
+    continue;
+  }
+  await sql`INSERT INTO tickets (customer_name, message, created_at)
+    VALUES (${name}, ${message}, now() - ${age(i)}::interval)`;
   added++;
 }
 console.log(`Added ${added} example tickets (${EXAMPLES.length - added} already existed).`);
