@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { addTicketAction, type ActionState } from "./actions";
 
 const MAX_MESSAGE = 5000;
@@ -64,9 +63,6 @@ export default function TicketForm() {
 
       <div className="flex flex-wrap items-center justify-end gap-3 border-t border-neutral-200 px-6 py-5 md:px-10 dark:border-neutral-800">
         {state.error && <span className="mr-auto text-sm text-red-600 dark:text-red-400">{state.error}</span>}
-        <Link href="/" className="btn btn-secondary">
-          Скасувати
-        </Link>
         <button disabled={pending} className="btn btn-primary px-6">
           {pending ? "Збереження…" : "Зберегти звернення"}
         </button>
